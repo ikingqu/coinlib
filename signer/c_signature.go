@@ -1,0 +1,5 @@
+package signer
+
+func CSign() {
+
+}
