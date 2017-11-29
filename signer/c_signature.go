@@ -1,5 +1,6 @@
 package signer
 
-func CSign() {
+// CSign 
+// func CSign() {
 
-}
+// }
