@@ -180,18 +180,21 @@ func (tx *rpcTransaction) UnmarshalJSON(msg []byte) error {
 }
 
 // TransactionByHash returns the transaction with the given hash.
-func (ec *Client) TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, blockNumber *string, err error) {
+func (ec *Client) TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, blockNumber string, err error) {
 	var json *rpcTransaction
 	err = ec.c.CallContext(ctx, &json, "eth_getTransactionByHash", hash)
 	if err != nil {
-		return nil, false, err
+		return nil, "", err
 	} else if json == nil {
-		return nil, false, ethereum.NotFound
+		return nil, "", ethereum.NotFound
 	} /*else if _, r, _ := json.tx.RawSignatureValues(); r == nil {
 		return nil, false, fmt.Errorf("server returned transaction without signature")
 	}*/
 	setSenderFromServer(json.tx, json.From, json.BlockHash)
-	return json.tx, json.BlockNumber, nil
+	if json.BlockNumber != nil {
+		return json.tx, *json.BlockNumber, nil
+	}
+	return json.tx, "0", nil
 }
 
 // TransactionSender returns the sender address of the given transaction. The transaction
