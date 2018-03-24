@@ -227,7 +227,12 @@ func (c *jsonClientCodec) WriteRequest(r *Request, param interface{}) error {
 	c.mutex.Unlock()
 	c.req.Method = r.ServiceMethod
 	if param != nil {
-		c.req.Params = append(c.req.Params, param)
+		_params , ok :=  param.([]interface{})
+		if !ok{
+			c.req.Params = append(c.req.Params, param)
+		}else{
+			c.req.Params = append(c.req.Params, _params...)
+		}
 	} else {
 		c.req.Params = make([]interface{}, 0)
 	}
