@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/maiiz/coinlib/crypto"
+	"github.com/maiiz/coinlib/crypto/aes"
 	"github.com/maiiz/coinlib/crypto/secp256k1"
 	"github.com/maiiz/coinlib/params"
 	"github.com/maiiz/coinlib/utils"
@@ -84,8 +85,8 @@ func (ks *KeyStore) GenerateKeys(num uint32, auth string) error {
 		defer changeFile.Close()
 
 		// Write EncryptInfo
-		ks.salt, ks.iv = crypto.GenEncryptInfo()
-		derivedKey := crypto.GetDerivedKey(auth, ks.salt)
+		ks.salt, ks.iv = aes.GenEncryptInfo()
+		derivedKey := aes.GetDerivedKey(auth, ks.salt)
 		ks.mac = crypto.Keccak256(derivedKey[16:32])
 
 		ks.write(walletMagic)
@@ -102,7 +103,7 @@ func (ks *KeyStore) GenerateKeys(num uint32, auth string) error {
 		for i := uint32(0); i < num+changeAddressNum; i++ {
 			priv, pub := generateKey()
 			addr := params.Params.AddressHashFunc(pub)
-			encryptKey, err := crypto.Encrypt(derivedKey[:16], priv, ks.iv)
+			encryptKey, err := aes.Encrypt(derivedKey[:16], priv, ks.iv)
 			if err != nil {
 				panic(err)
 			}
@@ -173,8 +174,8 @@ func (ks KeyStore) GetPrivkey(addr utils.Address, auth string) (*ecdsa.PrivateKe
 		return nil, ErrKeyNotFind
 	}
 
-	derivedKey := crypto.GetDerivedKey(auth, ks.salt)
-	privBytes, err := crypto.Decrypt(derivedKey[:16], encryptKey, ks.iv, ks.mac)
+	derivedKey := aes.GetDerivedKey(auth, ks.salt)
+	privBytes, err := aes.Decrypt(derivedKey[:16], encryptKey, ks.iv, ks.mac)
 	if err != nil {
 		return nil, err
 	}
