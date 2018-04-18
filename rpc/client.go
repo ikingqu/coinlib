@@ -59,8 +59,6 @@ type ClientCodec interface {
 	WriteRequest(*Request, interface{}) error
 	ReadResponseHeader(*Response) error
 	ReadResponseBody(interface{}) error
-	ReponseResult() []byte
-
 	Close() error
 }
 
@@ -283,11 +281,13 @@ func (c *jsonClientCodec) ReadResponseBody(x interface{}) error {
 	if x == nil {
 		return nil
 	}
-	return json.Unmarshal(*c.resp.Result, x)
-}
-
-func (c *jsonClientCodec) ReponseResult() []byte {
-	return *c.resp.Result
+	switch x.(type) {
+	case []byte:
+		*(x.(*[]byte)) = *c.resp.Result
+		return nil
+	default:
+		return json.Unmarshal(*c.resp.Result, x)
+	}
 }
 
 func (c *jsonClientCodec) Close() error {
@@ -345,9 +345,4 @@ func (client *Client) Go(serviceMethod string, args interface{}, reply interface
 func (client *Client) Call(serviceMethod string, args interface{}, reply interface{}) error {
 	call := <-client.Go(serviceMethod, args, reply, make(chan *Call, 1)).Done
 	return call.Error
-}
-
-// ReponseResult returns the server response with bytes.
-func (client *Client) ReponseResult() []byte {
-	return client.codec.ReponseResult()
 }
