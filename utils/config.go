@@ -68,3 +68,23 @@ func GetBool(key string, defaultValue bool) bool {
 	}
 	return value
 }
+
+func GetStringMapString(key string, defaultValue map[string]string) map[string]string {
+	var (
+		value = make(map[string]string)
+	)
+	if value = viper.GetStringMapString(key); value == nil {
+		return defaultValue
+	}
+	return value
+}
+
+func GetStringMap(key string, defaultValue map[string]interface{}) map[string]interface{} {
+	var (
+		value = make(map[string]interface{})
+	)
+	if value = viper.GetStringMap(key); value == nil {
+		return defaultValue
+	}
+	return value
+}

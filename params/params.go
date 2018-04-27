@@ -29,7 +29,7 @@ type ChainParams struct {
 
 	CoinbaseMaturity uint8
 	Coin             *big.Int
-	CoinType         string
+	Currency         string
 
 	AddressHashFunc func([]byte) []byte
 	ToAddress       func([]byte) string
@@ -74,7 +74,7 @@ var (
 
 		CoinbaseMaturity: 100,
 		Coin:             big.NewInt(1e8),
-		CoinType:         BTC,
+		Currency:         BTC,
 	}
 
 	ltcMainnetParams = &ChainParams{
@@ -93,7 +93,7 @@ var (
 
 		CoinbaseMaturity: 100,
 		Coin:             big.NewInt(1e8),
-		CoinType:         LTC,
+		Currency:         LTC,
 
 		AddressHashFunc: crypto.Hash160,
 		ToAddress: func(b []byte) string {
@@ -128,7 +128,7 @@ var (
 			return base58.Encode(a)
 		},
 
-		CoinType: BCC,
+		Currency: BCC,
 	}
 
 	ethMainnetParams = &ChainParams{
@@ -146,7 +146,7 @@ var (
 
 		CoinbaseMaturity: 0,
 		Coin:             big.NewInt(1e18),
-		CoinType:         ETH,
+		Currency:         ETH,
 
 		AddressHashFunc: func(b []byte) []byte { return crypto.Keccak256(b[1:])[12:] },
 		ToAddress:       func(b []byte) string { return fmt.Sprintf("0x%x", b) },
@@ -169,7 +169,7 @@ var (
 
 		CoinbaseMaturity: 0,
 		Coin:             big.NewInt(1e18),
-		CoinType:         ETC,
+		Currency:         ETC,
 
 		AddressHashFunc: func(b []byte) []byte { return crypto.Keccak256(b[1:])[12:] },
 		ToAddress:       func(b []byte) string { return fmt.Sprintf("0x%x", b) },

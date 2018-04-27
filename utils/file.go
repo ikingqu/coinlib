@@ -1,6 +1,9 @@
 package utils
 
-import "os"
+import (
+	"io/ioutil"
+	"os"
+)
 
 // OpenFile opens or creates a file
 // If the file already exists, open it . If it does not,
@@ -20,4 +23,14 @@ func FileExist(filePath string) bool {
 		return false
 	}
 	return true
+}
+
+// WriteToFile writes data to file.
+func WriteToFile(d []byte, fileTo string) error {
+	err := ioutil.WriteFile(fileTo, d, 0600)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

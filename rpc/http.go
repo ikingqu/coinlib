@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -54,7 +55,8 @@ func (c *httpClient) Write(d []byte) (n int, err error) {
 	c.req.Body = ioutil.NopCloser(bytes.NewReader(d))
 	resp, err := c.client.Do(c.req)
 	if err != nil {
-		panic(err)
+		c.resp <- resp
+		return 0, err
 	}
 
 	c.resp <- resp
@@ -71,21 +73,24 @@ func (c *httpClient) Read(p []byte) (n int, err error) {
 		resp = c.remainResp
 	}
 
-	n, err = resp.Body.Read(p)
-	if err != nil {
-		defer resp.Body.Close()
-		c.canRead = false
-	} else {
-		c.remainResp = resp
-		c.canRead = true
+	if resp != nil {
+		n, err = resp.Body.Read(p)
+		if err != nil {
+			defer resp.Body.Close()
+			c.canRead = false
+		} else {
+			c.remainResp = resp
+			c.canRead = true
+		}
+		return n, err
 	}
-
-	return n, err
+	return 0, fmt.Errorf("response error %v", resp)
 }
 
 // Close implements io.Closer interface.
 func (c *httpClient) Close() error {
 	c.req.Body.Close()
+	close(c.resp)
 	return nil
 }
 

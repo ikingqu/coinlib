@@ -225,10 +225,11 @@ func (c *jsonClientCodec) WriteRequest(r *Request, param interface{}) error {
 	c.pending[r.Seq] = r.ServiceMethod
 	c.mutex.Unlock()
 	c.req.Method = r.ServiceMethod
+	c.req.Params = nil
 	if param != nil {
 		_params, ok := param.([]interface{})
-		if !ok {
-			c.req.Params = append(c.req.Params, param)
+		if !ok && param != nil {
+			c.req.Params = []interface{}{param}
 		} else {
 			c.req.Params = append(c.req.Params, _params...)
 		}
@@ -282,7 +283,7 @@ func (c *jsonClientCodec) ReadResponseBody(x interface{}) error {
 		return nil
 	}
 	switch x.(type) {
-	case []byte:
+	case *[]byte:
 		*(x.(*[]byte)) = *c.resp.Result
 		return nil
 	default:
