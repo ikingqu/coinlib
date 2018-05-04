@@ -51,6 +51,10 @@ func NewClient(c *rpc.Client) *Client {
 	return &Client{c}
 }
 
+func (ec *Client) Close() {
+	ec.c.Close()
+}
+
 // Blockchain Access
 
 // BlockByHash returns the given full block.

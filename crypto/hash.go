@@ -3,6 +3,7 @@ package crypto
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/crypto/sha3"
 	"golang.org/x/crypto/ripemd160"
@@ -129,3 +130,15 @@ func Keccak512(data ...[]byte) []byte {
 // 	data, _ := rlp.EncodeToBytes([]interface{}{b, nonce})
 // 	return common.BytesToAddress(Keccak256(data)[12:])
 // }
+
+// EthSignHash is a helper function that calculates a hash for the given message
+// that can be safely used to calculate a signature from.
+//
+// The hash is calulcated as
+//   keccak256("\x19Ethereum Signed Message:\n"${message length}${message}).
+//
+// This gives context to the signed message and prevents signing of transactions.
+func EthSignHash(data []byte) []byte {
+	msg := fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(data), data)
+	return Keccak256([]byte(msg))
+}

@@ -7,6 +7,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/maiiz/coinlib/ethereum/types"
+	"github.com/maiiz/coinlib/log"
 )
 
 // TokenABI defines the ERC20 standard token abi.
@@ -40,6 +42,19 @@ func UnpackTransferInput(input []byte) (common.Address, *big.Int, error) {
 		return values[0].(common.Address), values[1].(*big.Int), nil
 	}
 	return common.Address{}, big.NewInt(0), fmt.Errorf("Not correct transfer parameters")
+}
+
+// Transfer makes an erc20 token transfer transaction.
+func Transfer(
+	nonce uint64, contract, to common.Address,
+	amount, gasLimit, gasPrice *big.Int) *types.Transaction {
+
+	payload, err := PackParams("transfer", to, amount)
+	if err != nil {
+		log.Errorf("Token.PackParams error %+v", err)
+		return nil
+	}
+	return types.NewTransaction(nonce, contract, big.NewInt(0), gasLimit, gasPrice, payload)
 }
 
 /*

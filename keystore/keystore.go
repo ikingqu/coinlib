@@ -4,7 +4,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/binary"
 	"errors"
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/maiiz/coinlib/crypto"
@@ -140,16 +140,14 @@ func (ks *KeyStore) Load() error {
 			magic = make([]byte, 32)
 			buf   = make([]byte, 4)
 		)
-		log.Println("magic")
-		log.Println(ks.read(magic))
+		ks.read(magic)
 		ks.read(ks.salt)
 		ks.read(ks.iv)
 		ks.read(ks.mac)
 
 		ks.read(buf)
 		num := binary.LittleEndian.Uint32(buf)
-		log.Println(magic, ks.salt, ks.iv, ks.mac, buf)
-		log.Printf("load keys %d addrs, %d change addrs", num, changeAddressNum)
+
 		for i := uint32(0); i < num+changeAddressNum; i++ {
 			var (
 				addr       = make([]byte, 20)
@@ -163,6 +161,20 @@ func (ks *KeyStore) Load() error {
 		return nil
 	}
 	return ErrNoWalletFile
+}
+
+// SignMessage signs message with all wallet keys.
+func (ks *KeyStore) SignMessage(message, auth string) error {
+	for k, v := range ks.keys {
+		derivedKey := aes.GetDerivedKey(auth, ks.salt)
+		privBytes, err := aes.Decrypt(derivedKey[:16], v, ks.iv, ks.mac)
+		if err != nil {
+			return err
+		}
+		signature, _ := secp256k1.ToECDSA(privBytes).Sign(crypto.EthSignHash([]byte(message)))
+		fmt.Printf("0x%x,%x\n", k[:], signature.Bytes())
+	}
+	return nil
 }
 
 // GetPrivkey gets privatekey by address.

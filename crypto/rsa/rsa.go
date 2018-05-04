@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
-	"fmt"
 )
 
 // GenerateKey generates rsa privatekey.
@@ -59,8 +58,7 @@ func ExportPubkey(pub *rsa.PublicKey) ([]byte, error) {
 
 // Encrypt encrypts data with publickey.
 func Encrypt(plainText []byte, publicKey []byte) ([]byte, error) {
-	block, b := pem.Decode(publicKey)
-	fmt.Println(block, b)
+	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return nil, errors.New("public key error")
 	}
