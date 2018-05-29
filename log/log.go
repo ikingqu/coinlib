@@ -97,6 +97,11 @@ func GetLevel() logrus.Level {
 	return logrus.GetLevel()
 }
 
+// GetOutput returns the logger output.
+func GetOutput() io.Writer {
+	return logrus.StandardLogger().Out
+}
+
 // AddHook adds a hook to the standard logger hooks.
 func AddHook(hook logrus.Hook) {
 	logrus.AddHook(hook)

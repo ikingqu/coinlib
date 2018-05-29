@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"time"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/maiiz/coinlib/ethereum/ethclient"
 	"github.com/maiiz/coinlib/ethereum/types"
@@ -66,19 +67,7 @@ func (c *Client) SuggestGasPrice() *big.Int {
 
 	gasPrice, err := c.Client.SuggestGasPrice(ctx)
 	if err != nil {
-		panic(err)
-	}
-
-	if gasPrice.Cmp(big.NewInt(2000000000)) == 1 {
-		res := new(big.Float).Quo(new(big.Float).SetInt(gasPrice), big.NewFloat(2000000000))
-		res.Add(res, big.NewFloat(0.001))
-		fr, _ := res.Float64()
-		bigval := new(big.Float)
-		bigval.SetFloat64(float64(int64(fr*1000)) / 1000)
-		bigval.Mul(big.NewFloat(2000000000), bigval)
-		bigval.Int(gasPrice)
-	} else {
-		gasPrice = big.NewInt(2000000000)
+		return big.NewInt(5000000000)
 	}
 
 	return gasPrice

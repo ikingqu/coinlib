@@ -151,7 +151,7 @@ var (
 		AddressHashFunc: func(b []byte) []byte { return crypto.Keccak256(b[1:])[12:] },
 		ToAddress:       func(b []byte) string { return fmt.Sprintf("0x%x", b) },
 
-		TxGas:   big.NewInt(21000),
+		TxGas:   big.NewInt(100000),
 		ChainID: big.NewInt(1),
 	}
 	etcMainnetParams = &ChainParams{
