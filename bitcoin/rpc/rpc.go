@@ -48,6 +48,16 @@ func (rpc BitcoinRPC) GetBlockByHash(h string) ([]byte, error) {
 	return blockData, err
 }
 
+// GetFullBlockByHash returns block full infomations by hash.
+func (rpc BitcoinRPC) GetFullBlockByHash(h string) ([]byte, error) {
+	var (
+		blockData []byte
+		err       error
+	)
+	err = rpc.client.Call("getblock", []interface{}{h, 2}, &blockData)
+	return blockData, err
+}
+
 // GetBlockByHeight returns block infomations by height.
 func (rpc BitcoinRPC) GetBlockByHeight(h uint64) ([]byte, error) {
 	var (
@@ -60,6 +70,21 @@ func (rpc BitcoinRPC) GetBlockByHeight(h uint64) ([]byte, error) {
 		return blockData, err
 	}
 	blockData, err = rpc.GetBlockByHash(blockHash)
+	return blockData, err
+}
+
+// GetFullBlockByHeight returns block full infomations by height.
+func (rpc BitcoinRPC) GetFullBlockByHeight(h uint64) ([]byte, error) {
+	var (
+		blockHash string
+		blockData []byte
+		err       error
+	)
+	blockHash, err = rpc.GetBlockHash(h)
+	if err != nil {
+		return blockData, err
+	}
+	blockData, err = rpc.GetFullBlockByHash(blockHash)
 	return blockData, err
 }
 
@@ -83,6 +108,16 @@ func (rpc BitcoinRPC) GetRawTransaction(h string) ([]byte, error) {
 
 	err = rpc.client.Call("getrawtransaction", []interface{}{h, 1}, &tx)
 	return tx, err
+}
+
+// SendToAddress sends coin to dest address.
+func (rpc BitcoinRPC) SendToAddress(addr, amount string) (string, error) {
+	var (
+		txid string
+		err  error
+	)
+	rpc.client.Call("sendtoaddress", []interface{}{addr, amount}, &txid)
+	return txid, err
 }
 
 // OmniListBlockTransactions returns the omnilayer transactions in block.
