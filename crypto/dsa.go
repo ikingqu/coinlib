@@ -10,6 +10,7 @@ type PrivateKey interface {
 // PublicKey defines the interface of publickey.
 type PublicKey interface {
 	Bytes() []byte
+	CompressedBytes() []byte
 }
 
 // Signature defines the interface of signature.

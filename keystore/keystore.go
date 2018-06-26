@@ -101,7 +101,7 @@ func (ks *KeyStore) GenerateKeys(num uint32, auth string) error {
 
 		// Write Address->Key
 		for i := uint32(0); i < num+changeAddressNum; i++ {
-			priv, pub := generateKey()
+			priv, pub := generateKey(params.Params.IsCompressed)
 			addr := params.Params.AddressHashFunc(pub)
 			encryptKey, err := aes.Encrypt(derivedKey[:16], priv, ks.iv)
 			if err != nil {
@@ -201,11 +201,14 @@ func (ks *KeyStore) AppendKeys(num int, auth string) error {
 	return nil
 }
 
-func generateKey() (priv, pub []byte) {
+func generateKey(compressed bool) (priv, pub []byte) {
 	privKey, err := secp256k1.GenerateKey()
 	if err != nil {
 		panic(err)
 	}
 
+	if compressed {
+		return privKey.SecretBytes(), privKey.Public().CompressedBytes()
+	}
 	return privKey.SecretBytes(), privKey.Public().Bytes()
 }

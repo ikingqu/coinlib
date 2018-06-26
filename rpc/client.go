@@ -260,6 +260,12 @@ func (c *jsonClientCodec) ReadResponseHeader(r *Response) error {
 
 	c.mutex.Lock()
 	r.ServiceMethod = c.pending[c.resp.Id]
+	if r.ServiceMethod == "" && len(c.pending) == 1 {
+		for k, v := range c.pending {
+			r.ServiceMethod = v
+			c.resp.Id = k
+		}
+	}
 	delete(c.pending, c.resp.Id)
 	c.mutex.Unlock()
 

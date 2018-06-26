@@ -84,7 +84,7 @@ func (c *httpClient) Read(p []byte) (n int, err error) {
 		}
 		return n, err
 	}
-	return 0, fmt.Errorf("response error %v", resp)
+	return 0, fmt.Errorf("response error %v\n", resp)
 }
 
 // Close implements io.Closer interface.

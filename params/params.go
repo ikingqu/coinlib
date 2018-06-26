@@ -12,6 +12,7 @@ import (
 // ChainParams defines the chain parameters.
 type ChainParams struct {
 	PubkeyAddressPrefix byte
+	IsCompressed        bool
 	ScriptAddressPrefix byte
 	PrivateKeyPrefix    byte
 
@@ -44,6 +45,7 @@ const (
 	BCC = "bcc"
 	ETH = "eth"
 	ETC = "etc"
+	XRP = "xrp"
 )
 
 var (
@@ -52,6 +54,7 @@ var (
 
 	btcMainnetParams = &ChainParams{
 		PubkeyAddressPrefix: 0,
+		IsCompressed:        true,
 		ScriptAddressPrefix: 5,
 		PrivateKeyPrefix:    128,
 
@@ -69,7 +72,7 @@ var (
 			a := append([]byte{0}, b[:]...)
 			checkSum := crypto.DoubleSha256(a)
 			a = append(a, checkSum[:4]...)
-			return base58.Encode(a)
+			return base58.StdEncoding.Encode(a)
 		},
 
 		CoinbaseMaturity: 100,
@@ -79,6 +82,7 @@ var (
 
 	ltcMainnetParams = &ChainParams{
 		PubkeyAddressPrefix: 48,
+		IsCompressed:        true,
 		ScriptAddressPrefix: 5,
 		PrivateKeyPrefix:    176,
 
@@ -100,12 +104,13 @@ var (
 			a := append([]byte{48}, b[:]...)
 			checkSum := crypto.DoubleSha256(a)
 			a = append(a, checkSum[:4]...)
-			return base58.Encode(a)
+			return base58.StdEncoding.Encode(a)
 		},
 	}
 
 	bccMainnetParams = &ChainParams{
 		PubkeyAddressPrefix:     0,
+		IsCompressed:            true,
 		ScriptAddressPrefix:     5,
 		PrivateKeyPrefix:        128,
 		WitnessPubkeyPrefix:     0,
@@ -125,7 +130,7 @@ var (
 			a := append([]byte{0}, b[:]...)
 			checkSum := crypto.DoubleSha256(a)
 			a = append(a, checkSum[:4]...)
-			return base58.Encode(a)
+			return base58.StdEncoding.Encode(a)
 		},
 
 		Currency: BCC,
@@ -133,6 +138,7 @@ var (
 
 	ethMainnetParams = &ChainParams{
 		// PubkeyAddressPrefix:     0,
+		IsCompressed: false,
 		// ScriptAddressPrefix:     0,
 		// PrivateKeyPrefix:        0,
 		// WitnessPubkeyPrefix:     0,
@@ -151,11 +157,12 @@ var (
 		AddressHashFunc: func(b []byte) []byte { return crypto.Keccak256(b[1:])[12:] },
 		ToAddress:       func(b []byte) string { return fmt.Sprintf("0x%x", b) },
 
-		TxGas:   big.NewInt(100000),
+		TxGas:   big.NewInt(21000),
 		ChainID: big.NewInt(1),
 	}
 	etcMainnetParams = &ChainParams{
 		// PubkeyAddressPrefix:     0,
+		IsCompressed: false,
 		// ScriptAddressPrefix:     0,
 		// PrivateKeyPrefix:        0,
 		// WitnessPubkeyPrefix:     0,
@@ -177,6 +184,34 @@ var (
 		TxGas:   big.NewInt(21000),
 		ChainID: big.NewInt(61),
 	}
+
+	rippleMainnetParams = &ChainParams{
+		PubkeyAddressPrefix: 0,
+		IsCompressed:        true,
+		ScriptAddressPrefix: 5,
+		PrivateKeyPrefix:    128,
+
+		WitnessPubkeyPrefix:     0,
+		WitnessScriptAddrPrefix: 0,
+
+		HDPrivateKeyPrefix: [4]byte{0x04, 0x88, 0xad, 0xe4},
+		HDPublicKeyPrefix:  [4]byte{0x04, 0x88, 0xb2, 0x1e},
+
+		DefaultPort: 8333,
+		RPCPort:     8332,
+
+		AddressHashFunc: crypto.Hash160,
+		ToAddress: func(b []byte) string {
+			a := append([]byte{0}, b[:]...)
+			checkSum := crypto.DoubleSha256(a)
+			a = append(a, checkSum[:4]...)
+			return base58.RippleEncoding.Encode(a)
+		},
+
+		CoinbaseMaturity: 100,
+		Coin:             big.NewInt(1e8),
+		Currency:         BTC,
+	}
 )
 
 // SelectChain selects the chain parameters to use
@@ -195,6 +230,8 @@ func SelectChain(ct string) *ChainParams {
 		Params = ethMainnetParams
 	case ETC:
 		Params = etcMainnetParams
+	case XRP:
+		Params = rippleMainnetParams
 	}
 	return Params
 }

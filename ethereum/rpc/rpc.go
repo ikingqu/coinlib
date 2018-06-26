@@ -78,3 +78,15 @@ func (c *Client) SendRawTransaction(tx *types.Transaction) error {
 	ctx := context.Background()
 	return c.SendTransaction(ctx, tx)
 }
+
+// EstimateGas tries to estimate the gas needed to execute a specific transaction.
+func (c *Client) EstimateGas(msg ethereum.CallMsg) (*big.Int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	gas, err := c.Client.EstimateGas(ctx, msg)
+	if err != nil {
+		return big.NewInt(21000), nil
+	}
+	return gas, err
+}

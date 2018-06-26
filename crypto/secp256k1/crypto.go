@@ -242,6 +242,20 @@ func (priv *PrivateKey) ZeroMemory() {
 	utils.ZeroMemory(b)
 }
 
+// DecompressPubkey parses a public key in the 33-byte compressed format.
+func DecompressPubkey(pubkey []byte) (*ecdsa.PublicKey, error) {
+	x, y := secp256k1.DecompressPubkey(pubkey)
+	if x == nil {
+		return nil, fmt.Errorf("invalid public key")
+	}
+	return &ecdsa.PublicKey{X: x, Y: y, Curve: S256()}, nil
+}
+
+// CompressedBytes encodes a public key to the 33-byte compressed format.
+func (pub PublicKey) CompressedBytes() []byte {
+	return secp256k1.CompressPubkey(pub.X, pub.Y)
+}
+
 // func PubkeyToEAddress(p ecdsa.PublicKey) common.Address {
 // 	pubBytes := (PublicKey)(&p).Bytes()
 // 	return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])

@@ -386,6 +386,10 @@ func (b *Block) Hash() common.Hash {
 	return v
 }
 
+func (b *Block) StoreHash(h common.Hash) {
+	b.hash.Store(h)
+}
+
 func (b *Block) String() string {
 	str := fmt.Sprintf(`Block(#%v): Size: %v {
 MinerHash: %x
